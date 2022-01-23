@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import { userSchema } from './validations/users.js';
+import { tweetSchema } from './validations/tweets.js';
 
 const app = express();
 
@@ -25,8 +26,7 @@ function saveData() {
 app.post('/sign-up', (req, res) => {
     const user = req.body;
 
-    const validate = userSchema.validate(user)
-    console.log({user, validate})
+    const validate = userSchema.validate(user);
     
     if (validate.error) {
         return res.status(400).send('Todos os campos são obrigatórios!');
@@ -41,6 +41,18 @@ app.post('/sign-up', (req, res) => {
 
 app.post('/tweets', (req, res) => {
     const tweet = req.body;
+
+    const validate = tweetSchema.validate(tweet);
+
+    if (validate.error) {
+        return res.status(400).send('Todos os campos são obrigatórios!');
+    }
+
+    const searchUser = users.find((user) => tweet.username === user.username)
+
+    if (!searchUser) {
+        return res.sendStatus(401)
+    }
 
     tweets.push(tweet);
 
