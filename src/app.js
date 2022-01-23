@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
+import { userSchema } from './validations/users.js';
 
 const app = express();
 
@@ -11,7 +12,6 @@ const database = fs.readFileSync('./src/database.json');
 
 const users = JSON.parse(database.toString()).users;
 const tweets = JSON.parse(database.toString()).tweets;
-console.log(users)
 
 function saveData() {
     const db = {
@@ -24,6 +24,13 @@ function saveData() {
 
 app.post('/sign-up', (req, res) => {
     const user = req.body;
+
+    const validate = userSchema.validate(user)
+    console.log({user, validate})
+    
+    if (validate.error) {
+        return res.status(400).send('Todos os campos são obrigatórios!');
+    }
 
     users.push(user);
     
@@ -55,8 +62,6 @@ app.get('/tweets', (req, res) => {
     if (tweets.length < 10) {
         lastTweets.push(tweets);
     }
-
-    console.log(lastTweets);
 
     lastTweets.map((tweet) => {
         const user = users.find((user) => user.username === tweet.username);
