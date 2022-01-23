@@ -8,7 +8,6 @@ app.use(cors());
 app.use(express.json());
 
 const database = fs.readFileSync('./src/database.json');
-// console.log(JSON.parse(database.toString()).users)
 
 const users = JSON.parse(database.toString()).users;
 const tweets = JSON.parse(database.toString()).tweets;
@@ -39,7 +38,7 @@ app.post('/tweets', (req, res) => {
     tweets.push(tweet);
 
     saveData();
-    
+
     return res.status(201).send('OK')
 });
 
@@ -60,10 +59,8 @@ app.get('/tweets', (req, res) => {
     console.log(lastTweets);
 
     lastTweets.map((tweet) => {
-        // console.log(tweet)
         const user = users.find((user) => user.username === tweet.username);
-        console.log(user)
-        // console.log(tweet)
+
         result.push({
             ...user,
             ...tweet,
