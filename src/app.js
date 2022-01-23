@@ -24,15 +24,30 @@ function saveData() {
 }
 
 app.post('/sign-up', (req, res) => {
-    const user = req.body;
+    const {
+        username,
+        avatar,
+    } = req.body;
 
-    const validate = userSchema.validate(user);
+    const validate = userSchema.validate({
+        username,
+        avatar,
+    });
     
     if (validate.error) {
         return res.status(400).send('Todos os campos são obrigatórios!');
     }
 
-    users.push(user);
+    const searchUser = users.find((user) => username === user.username);
+
+    if (searchUser) {
+        return res.sendStatus(409);
+    }
+
+    users.push({
+        username,
+        avatar,
+    });
     
     saveData();
 
@@ -48,10 +63,10 @@ app.post('/tweets', (req, res) => {
         return res.status(400).send('Todos os campos são obrigatórios!');
     }
 
-    const searchUser = users.find((user) => tweet.username === user.username)
+    const searchUser = users.find((user) => tweet.username === user.username);
 
     if (!searchUser) {
-        return res.sendStatus(401)
+        return res.sendStatus(401);
     }
 
     tweets.push(tweet);
@@ -62,7 +77,7 @@ app.post('/tweets', (req, res) => {
 });
 
 app.get('/tweets', (req, res) => {
-    const lastTweets = [];
+    let lastTweets = [];
     const result = [];
 
     if (tweets.length >= 10) {
@@ -72,7 +87,7 @@ app.get('/tweets', (req, res) => {
     }
 
     if (tweets.length < 10) {
-        lastTweets.push(tweets);
+        lastTweets = tweets;
     }
 
     lastTweets.map((tweet) => {
@@ -80,11 +95,19 @@ app.get('/tweets', (req, res) => {
 
         result.push({
             ...user,
-            ...tweet,
+            tweet: tweet.tweet,
         })
     })
     
     return res.send(result);
+})
+
+app.get('/tweets/:username', (req, res) => {
+    const { username } = req.params;
+
+    const usersTweet = tweets.filter((tweet) => username === tweet.username);
+    
+    return res.send(usersTweet);
 })
 
 export {
