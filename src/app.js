@@ -105,9 +105,22 @@ app.get('/tweets', (req, res) => {
 app.get('/tweets/:username', (req, res) => {
     const { username } = req.params;
 
+    const userInfo = users.find((user => user.username === username))
+
+    if (!userInfo) {
+        return res.sendStatus(400);
+    }
+
     const usersTweet = tweets.filter((tweet) => username === tweet.username);
+
+    const result = usersTweet.map((tweet) => {
+        return {
+            ...userInfo,
+            tweet: tweet.tweet,
+        }
+    })
     
-    return res.send(usersTweet);
+    return res.send(result);
 })
 
 export {
